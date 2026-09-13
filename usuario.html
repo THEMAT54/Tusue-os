@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tu Sueños - Mi local</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-950: #1B1F3B; --indigo-800: #2A3163; --indigo-600: #3E4785;
+  --lavender-50: #F3F2FA; --lavender-100: #E7E5F5; --sand-100: #FBF9F5;
+  --gold-500: #C9922E; --gold-600: #B07F26;
+  --sage-500: #5E8B7E; --sage-600: #4C7266;
+  --state-green: #3C8F5E; --state-green-bg: #E3F3EA;
+  --state-yellow: #B8801E; --state-yellow-bg: #FBF0DC;
+  --state-red: #C0463F; --state-red-bg: #FBE8E7;
+  --text-main: #23263B; --text-muted: #6B6E85; --border-soft: #E3E1EE;
+  --radius-card: 14px; --radius-control: 10px;
+  --shadow-card: 0 1px 3px rgba(27, 31, 59, 0.08), 0 6px 16px rgba(27, 31, 59, 0.05);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--lavender-50); color: var(--text-main); font-family: var(--font-body); -webkit-tap-highlight-color: transparent; }
+.hidden { display: none !important; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+.btn { border: none; border-radius: var(--radius-control); padding: 13px 18px; font-size: 15px; font-weight: 600; transition: transform 0.08s ease; }
+.btn:active { transform: scale(0.98); }
+.btn-block { width: 100%; }
+.btn-primary { background: var(--indigo-950); color: #fff; }
+.btn-secondary { background: var(--sage-500); color: #fff; }
+.btn-outline { background: transparent; color: var(--indigo-950); border: 1.5px solid var(--indigo-950); }
+.btn-ghost { background: transparent; color: var(--text-muted); font-weight: 500; }
+.btn-small { padding: 9px 14px; font-size: 13.5px; border-radius: 8px; }
+.action-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 16px 0; }
+
+#loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--indigo-950); color: #fff; font-size: 14px; }
+
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--indigo-950); color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-small { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: #fff; }
+.topbar-location { font-size: 12px; color: var(--lavender-100); opacity: 0.85; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.user-name { font-size: 13px; color: var(--lavender-100); }
+.topbar .btn-ghost { color: #fff; padding: 6px 10px; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; background: #fff; border-top: 1px solid var(--border-soft); display: flex; justify-content: space-around; padding: 6px 2px calc(6px + env(safe-area-inset-bottom)); }
+.nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-muted); padding: 6px 4px; flex: 1; position: relative; }
+.nav-btn.active { color: var(--indigo-950); font-weight: 600; }
+.nav-icon { font-size: 20px; }
+.badge { position: absolute; top: 0; right: 18%; background: var(--state-red); color: #fff; font-size: 10px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+
+.content { padding: 16px 16px calc(90px + env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+.section-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 22px 0 10px; color: var(--indigo-950); }
+.section-title:first-child { margin-top: 4px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-card { background: #fff; border-radius: var(--radius-card); padding: 14px 10px; text-align: center; box-shadow: var(--shadow-card); }
+.stat-card .stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--indigo-950); display: block; }
+.stat-card .stat-label { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; display: block; }
+.stat-card.stat-pendiente .stat-value { color: var(--state-yellow); }
+
+.search-bar { margin-bottom: 12px; }
+.search-bar input, .filters-bar input, .filters-bar select { width: 100%; padding: 12px 14px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); background: #fff; font-size: 14.5px; }
+.filters-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.filters-bar input[type="text"], .filters-bar input[type="date"] { grid-column: span 2; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab-btn { flex: 1; padding: 10px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); background: #fff; color: var(--text-muted); font-weight: 600; font-size: 13.5px; }
+.tab-btn.active { background: var(--indigo-950); color: #fff; border-color: var(--indigo-950); }
+
+.product-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.product-card { background: #fff; border-radius: var(--radius-card); padding: 16px; box-shadow: var(--shadow-card); }
+.product-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.product-card h4 { margin: 0; font-size: 15.5px; color: var(--indigo-950); font-weight: 600; }
+.product-card .product-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.product-card .product-stock { font-family: var(--font-display); font-size: 21px; font-weight: 600; color: var(--indigo-950); white-space: nowrap; }
+.product-card .product-stock.stock-zero { color: var(--state-red); }
+.product-card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+.movement-list { display: flex; flex-direction: column; gap: 10px; }
+.empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 28px 10px; }
+.movement-card { background: #fff; border-radius: var(--radius-card); padding: 14px 16px; box-shadow: var(--shadow-card); border-left: 4px solid var(--border-soft); }
+.movement-card.estado-pendiente { border-left-color: var(--state-yellow); }
+.movement-card.estado-aprobada { border-left-color: var(--state-green); }
+.movement-card.estado-rechazada { border-left-color: var(--state-red); }
+.movement-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.movement-title { font-weight: 600; font-size: 14.5px; color: var(--indigo-950); }
+.movement-detail { font-size: 13px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+.pill { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.pill-pendiente { background: var(--state-yellow-bg); color: var(--state-yellow); }
+.pill-aprobada { background: var(--state-green-bg); color: var(--state-green); }
+.pill-rechazada { background: var(--state-red-bg); color: var(--state-red); }
+
+.modal { position: fixed; inset: 0; background: rgba(27, 31, 59, 0.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+.modal-content { background: #fff; border-radius: 20px 20px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; }
+.modal-content h3 { font-family: var(--font-display); color: var(--indigo-950); margin: 0 0 16px; font-size: 19px; }
+.modal-content label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 14px 0 6px; }
+.modal-content input[type="text"], .modal-content input[type="number"], .modal-content select, .modal-content textarea { width: 100%; padding: 12px 14px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); font-size: 15px; background: #fff; }
+.modal-content textarea { resize: vertical; }
+.qty-control { display: flex; align-items: center; gap: 10px; }
+.qty-control input { text-align: center; width: 70px; padding: 10px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); }
+.qty-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--indigo-950); background: #fff; color: var(--indigo-950); font-size: 20px; font-weight: 700; line-height: 1; }
+.hint-text { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; }
+.error-text { color: var(--state-red); font-size: 13.5px; margin-top: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+.modal-actions .btn { flex: 1; }
+
+.toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); background: var(--indigo-950); color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 13.5px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 90vw; text-align: center; }
+.toast.toast-error { background: var(--state-red); }
+.toast.toast-success { background: var(--state-green); }
+
+@media (min-width: 640px) {
+  .action-grid { grid-template-columns: repeat(3, 1fr); }
+  .stat-row { grid-template-columns: repeat(3, 1fr); }
+  .modal { align-items: center; }
+  .modal-content { border-radius: 20px; }
+  .bottom-nav { max-width: 720px; left: 50%; transform: translateX(-50%); border-radius: 16px 16px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">Cargando...</div>
+<div id="toast" class="toast hidden"></div>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="brand-small">Tu Sueños</span>
+      <span id="topbar-location" class="topbar-location"></span>
+    </div>
+    <div class="topbar-actions">
+      <span id="user-name" class="user-name"></span>
+      <button id="logout-btn" class="btn btn-ghost">Salir</button>
+    </div>
+  </header>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="view-dashboard"><span class="nav-icon">🏠</span><span>Inicio</span></button>
+    <button class="nav-btn" data-view="view-stock"><span class="nav-icon">📦</span><span>Stock</span></button>
+    <button class="nav-btn" data-view="view-pending"><span class="nav-icon">🟡</span><span>Pendientes</span><span id="pending-badge" class="badge hidden">0</span></button>
+    <button class="nav-btn" data-view="view-history"><span class="nav-icon">📋</span><span>Historial</span></button>
+  </nav>
+
+  <main class="content">
+
+    <section id="view-dashboard" class="view">
+      <h2 class="section-title" id="local-dashboard-title">Mi local</h2>
+      <div class="stat-row" id="local-summary-cards"></div>
+
+      <div class="action-grid">
+        <button class="btn btn-primary" id="btn-nueva-venta">+ Informar venta</button>
+        <button class="btn btn-secondary" id="btn-nueva-entrada">📦 Solicitar entrada</button>
+        <button class="btn btn-secondary" id="btn-nueva-transferencia">🔄 Solicitar transferencia</button>
+      </div>
+
+      <h2 class="section-title">Mis pendientes</h2>
+      <div id="local-mis-pendientes" class="movement-list"></div>
+    </section>
+
+    <section id="view-stock" class="view hidden">
+      <div class="search-bar"><input type="text" id="search-input" placeholder="🔍 Buscar producto..."></div>
+      <div id="stock-list" class="product-grid"></div>
+    </section>
+
+    <section id="view-pending" class="view hidden">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="pending-sales">Ventas</button>
+        <button class="tab-btn" data-tab="pending-transfers">Transferencias</button>
+        <button class="tab-btn" data-tab="pending-entries">Entradas</button>
+      </div>
+      <div id="pending-sales" class="tab-panel movement-list"></div>
+      <div id="pending-transfers" class="tab-panel movement-list hidden"></div>
+      <div id="pending-entries" class="tab-panel movement-list hidden"></div>
+    </section>
+
+    <section id="view-history" class="view hidden">
+      <div class="filters-bar">
+        <select id="filter-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="venta">Ventas</option>
+          <option value="transferencia">Transferencias</option>
+          <option value="entrada">Entradas</option>
+          <option value="ajuste">Ajustes</option>
+        </select>
+        <select id="filter-estado">
+          <option value="">Todos los estados</option>
+          <option value="aprobada">Aprobado</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="rechazada">Rechazado</option>
+        </select>
+        <input type="text" id="filter-producto" placeholder="Filtrar por producto...">
+        <input type="date" id="filter-fecha">
+      </div>
+      <div id="history-list" class="movement-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal: Nueva venta -->
+<div id="modal-venta" class="modal hidden">
+  <div class="modal-content">
+    <h3>Nueva venta</h3>
+    <label>Producto</label>
+    <select id="venta-producto"></select>
+    <label>Cantidad</label>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" data-target="venta-cantidad" data-delta="-1">−</button>
+      <input type="number" id="venta-cantidad" value="1" min="1">
+      <button type="button" class="qty-btn" data-target="venta-cantidad" data-delta="1">+</button>
+    </div>
+    <p id="venta-stock-info" class="hint-text"></p>
+    <label>Cliente (opcional)</label>
+    <input type="text" id="venta-cliente">
+    <label>Observaciones (opcional)</label>
+    <textarea id="venta-observaciones" rows="2"></textarea>
+    <p id="venta-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="venta-submit-btn">Enviar venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva entrada -->
+<div id="modal-entrada" class="modal hidden">
+  <div class="modal-content">
+    <h3>Solicitar entrada de mercadería</h3>
+    <label>Producto</label>
+    <select id="entrada-producto"></select>
+    <label>Cantidad</label>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" data-target="entrada-cantidad" data-delta="-1">−</button>
+      <input type="number" id="entrada-cantidad" value="1" min="1">
+      <button type="button" class="qty-btn" data-target="entrada-cantidad" data-delta="1">+</button>
+    </div>
+    <label>Notas (opcional)</label>
+    <textarea id="entrada-notas" rows="2"></textarea>
+    <p id="entrada-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="entrada-submit-btn">Solicitar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva transferencia (origen = mi local, fijo) -->
+<div id="modal-transferencia" class="modal hidden">
+  <div class="modal-content">
+    <h3>Solicitar transferencia</h3>
+    <label>Local destino</label>
+    <select id="transferencia-destino"></select>
+    <label>Producto</label>
+    <select id="transferencia-producto"></select>
+    <label>Cantidad</label>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" data-target="transferencia-cantidad" data-delta="-1">−</button>
+      <input type="number" id="transferencia-cantidad" value="1" min="1">
+      <button type="button" class="qty-btn" data-target="transferencia-cantidad" data-delta="1">+</button>
+    </div>
+    <p id="transferencia-stock-info" class="hint-text"></p>
+    <p id="transferencia-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="transferencia-submit-btn">Solicitar transferencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SDKs de Firebase (compat, vía CDN) ============ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ==========================================================
+// CONFIGURACIÓN DE FIREBASE
+// ==========================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDn7qYymsn3Rd7F3UkL0xNaotQNbbCrwUw",
+  authDomain: "tusuenoscolchones.firebaseapp.com",
+  projectId: "tusuenoscolchones",
+  storageBucket: "tusuenoscolchones.firebasestorage.app",
+  messagingSenderId: "286720480102",
+  appId: "1:286720480102:web:162a56256e4be40cc0aea7"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const LOCALES = { local1: "Local 1", local2: "Local 2", local3: "Local 3", local4: "Local 4" };
+
+// ==========================================================
+// ESTADO GLOBAL Y UTILIDADES
+// ==========================================================
+let currentUser = null; // { uid, nombre, localId }
+const cache = { products: {}, stock: {}, sales: {}, transfers: {}, entries: {}, movements: [] };
+let unsubscribers = [];
+
+const $ = (id) => document.getElementById(id);
+
+function showToast(message, type = "") {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.className = "toast" + (type ? " toast-" + type : "");
+  toast.classList.remove("hidden");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.add("hidden"), 3200);
+}
+
+function formatFechaHora(timestamp) {
+  if (!timestamp) return "";
+  const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return d.toLocaleDateString("es-AR") + " " + d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function stockKey(localId, productId) { return `${localId}_${productId}`; }
+function getStockCantidad(localId, productId) {
+  const doc = cache.stock[stockKey(localId, productId)];
+  return doc ? doc.cantidad : 0;
+}
+function productosActivos() {
+  return Object.entries(cache.products).filter(([, p]) => p.activo !== false).sort((a, b) => a[1].nombre.localeCompare(b[1].nombre));
+}
+
+// ==========================================================
+// AUTENTICACIÓN — esta página es exclusiva para rol "local"
+// ==========================================================
+$("logout-btn").addEventListener("click", () => auth.signOut());
+
+auth.onAuthStateChanged(async (user) => {
+  cleanupListeners();
+  if (!user) { window.location.href = "login.html"; return; }
+  try {
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if (!userDoc.exists || userDoc.data().activo === false) { await auth.signOut(); return; }
+    const data = userDoc.data();
+    if (data.rol !== "local") { window.location.href = "admin.html"; return; }
+
+    currentUser = { uid: user.uid, nombre: data.nombre || user.email, localId: data.localId };
+    $("loading-screen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    $("user-name").textContent = currentUser.nombre;
+    $("topbar-location").textContent = LOCALES[currentUser.localId] || "";
+    $("local-dashboard-title").textContent = LOCALES[currentUser.localId] || "Mi local";
+
+    populateLocaleSelects();
+    startListeners();
+  } catch (err) {
+    console.error(err);
+    showToast("Error al cargar tu perfil.", "error");
+  }
+});
+
+function cleanupListeners() { unsubscribers.forEach((u) => u()); unsubscribers = []; }
+
+function populateLocaleSelects() {
+  const destino = $("transferencia-destino");
+  destino.innerHTML = "";
+  Object.entries(LOCALES).forEach(([id, nombre]) => {
+    if (id === currentUser.localId) return; // no puede transferirse a sí mismo
+    destino.innerHTML += `<option value="${id}">${nombre}</option>`;
+  });
+}
+
+// ==========================================================
+// LISTENERS EN TIEMPO REAL
+// ==========================================================
+function startListeners() {
+  unsubscribers.push(db.collection("products").onSnapshot((snap) => {
+    cache.products = {};
+    snap.forEach((doc) => (cache.products[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("stock").where("localId", "==", currentUser.localId).onSnapshot((snap) => {
+    cache.stock = {};
+    snap.forEach((doc) => (cache.stock[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("sales").where("localId", "==", currentUser.localId).onSnapshot((snap) => {
+    cache.sales = {};
+    snap.forEach((doc) => (cache.sales[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("transfers").where("localOrigen", "==", currentUser.localId).onSnapshot((snap) => {
+    snap.forEach((doc) => (cache.transfers[doc.id] = doc.data()));
+    renderAll();
+  }));
+  unsubscribers.push(db.collection("transfers").where("localDestino", "==", currentUser.localId).onSnapshot((snap) => {
+    snap.forEach((doc) => (cache.transfers[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("entries").where("localId", "==", currentUser.localId).onSnapshot((snap) => {
+    cache.entries = {};
+    snap.forEach((doc) => (cache.entries[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(
+    db.collection("movements").where("localId", "==", currentUser.localId).orderBy("fecha", "desc").limit(200)
+      .onSnapshot((snap) => { cache.movements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
+        (err) => console.error("movements listener:", err))
+  );
+}
+
+function renderAll() {
+  if (!currentUser) return;
+  renderDashboard();
+  renderStockView();
+  renderPendingView();
+  renderHistoryView();
+  updatePendingBadge();
+}
+
+// ==========================================================
+// NAVEGACIÓN
+// ==========================================================
+document.querySelectorAll(".nav-btn").forEach((btn) => btn.addEventListener("click", () => goToView(btn.dataset.view)));
+function goToView(viewId) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.add("hidden"));
+  $(viewId).classList.remove("hidden");
+  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === viewId));
+}
+
+function contarPendientes() {
+  return Object.values(cache.sales).filter((s) => s.estado === "pendiente").length +
+    Object.values(cache.transfers).filter((t) => t.estado === "pendiente").length +
+    Object.values(cache.entries).filter((e) => e.estado === "pendiente").length;
+}
+function updatePendingBadge() {
+  const count = contarPendientes();
+  const badge = $("pending-badge");
+  if (count > 0) { badge.textContent = count; badge.classList.remove("hidden"); }
+  else badge.classList.add("hidden");
+}
+
+// ==========================================================
+// DASHBOARD
+// ==========================================================
+function renderDashboard() {
+  const total = productosActivos().reduce((sum, [pid]) => sum + getStockCantidad(currentUser.localId, pid), 0);
+  $("local-summary-cards").innerHTML = `
+    <div class="stat-card"><span class="stat-value">${productosActivos().length}</span><span class="stat-label">Productos</span></div>
+    <div class="stat-card"><span class="stat-value">${total}</span><span class="stat-label">Unidades</span></div>
+    <div class="stat-card stat-pendiente"><span class="stat-value">${contarPendientes()}</span><span class="stat-label">Pendientes</span></div>
+  `;
+
+  const items = [
+    ...Object.entries(cache.sales).filter(([, s]) => s.estado === "pendiente").map(([id, s]) => ({ id, tipo: "venta", ...s })),
+    ...Object.entries(cache.transfers).filter(([, t]) => t.estado === "pendiente").map(([id, t]) => ({ id, tipo: "transferencia", ...t })),
+    ...Object.entries(cache.entries).filter(([, e]) => e.estado === "pendiente").map(([id, e]) => ({ id, tipo: "entrada", ...e }))
+  ].sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+
+  $("local-mis-pendientes").innerHTML = items.map((it) => renderPendingCard(it, it.tipo)).join("") || `<div class="empty-state">No tenés movimientos pendientes.</div>`;
+}
+
+// ==========================================================
+// STOCK
+// ==========================================================
+function renderStockView() {
+  const query = $("search-input").value.trim().toLowerCase();
+  const list = productosActivos().filter(([, p]) => !query || [p.nombre, p.medida, p.categoria].join(" ").toLowerCase().includes(query));
+
+  $("stock-list").innerHTML = list.map(([pid, p]) => {
+    const cantidad = getStockCantidad(currentUser.localId, pid);
+    const zeroClass = cantidad === 0 ? "stock-zero" : "";
+    return `<div class="product-card">
+      <div class="product-card-top">
+        <div><h4>${p.nombre}</h4><div class="product-meta">${[p.categoria, p.medida].filter(Boolean).join(" · ")}</div></div>
+        <div class="product-stock ${zeroClass}">${cantidad}</div>
+      </div>
+      <div class="product-card-actions"><button class="btn btn-primary btn-small btn-vender" data-product="${pid}">Informar venta</button></div>
+    </div>`;
+  }).join("") || `<div class="empty-state">No se encontraron productos.</div>`;
+
+  document.querySelectorAll(".btn-vender").forEach((btn) => btn.addEventListener("click", () => openVentaModal(btn.dataset.product)));
+}
+$("search-input").addEventListener("input", renderStockView);
+
+// ==========================================================
+// PENDIENTES (solo lectura: el local no aprueba nada)
+// ==========================================================
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.add("hidden"));
+    btn.classList.add("active");
+    $(btn.dataset.tab).classList.remove("hidden");
+  });
+});
+
+function renderPendingView() {
+  const ventas = Object.entries(cache.sales).filter(([, s]) => s.estado === "pendiente").map(([id, s]) => ({ id, ...s }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-sales").innerHTML = ventas.map((v) => renderPendingCard(v, "venta")).join("") || `<div class="empty-state">No hay ventas pendientes.</div>`;
+
+  const transferencias = Object.entries(cache.transfers).filter(([, t]) => t.estado === "pendiente").map(([id, t]) => ({ id, ...t }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-transfers").innerHTML = transferencias.map((t) => renderPendingCard(t, "transferencia")).join("") || `<div class="empty-state">No hay transferencias pendientes.</div>`;
+
+  const entradas = Object.entries(cache.entries).filter(([, e]) => e.estado === "pendiente").map(([id, e]) => ({ id, ...e }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-entries").innerHTML = entradas.map((e) => renderPendingCard(e, "entrada")).join("") || `<div class="empty-state">No hay entradas pendientes.</div>`;
+}
+
+function renderPendingCard(item, tipo) {
+  let titulo = "", detalle = "";
+  const producto = cache.products[item.productId]?.nombre || item.productNombre || "Producto";
+  if (tipo === "venta") {
+    titulo = `${producto} x${item.cantidad}`;
+    detalle = `${item.cliente ? "Cliente: " + item.cliente + "<br>" : ""}${formatFechaHora(item.fechaCreacion)}`;
+  } else if (tipo === "transferencia") {
+    titulo = `${LOCALES[item.localOrigen]} → ${LOCALES[item.localDestino]} · ${producto} x${item.cantidad}`;
+    detalle = formatFechaHora(item.fechaCreacion);
+  } else if (tipo === "entrada") {
+    titulo = `${producto} x${item.cantidad}`;
+    detalle = formatFechaHora(item.fechaCreacion);
+  }
+  return `<div class="movement-card estado-pendiente">
+    <div class="movement-top"><span class="movement-title">${titulo}</span><span class="pill pill-pendiente">Pendiente</span></div>
+    <div class="movement-detail">${detalle}</div>
+  </div>`;
+}
+
+// ==========================================================
+// HISTORIAL
+// ==========================================================
+["filter-tipo", "filter-estado", "filter-producto", "filter-fecha"].forEach((id) => $(id).addEventListener("input", renderHistoryView));
+
+function renderMovementCard(m) {
+  const producto = cache.products[m.productId]?.nombre || m.productNombre || "Producto";
+  let titulo = "";
+  if (m.tipo === "venta") titulo = `Venta · ${producto} x${m.cantidad}`;
+  else if (m.tipo === "transferencia") titulo = `Transferencia · ${LOCALES[m.localId]} → ${LOCALES[m.localDestino]} · ${producto} x${m.cantidad}`;
+  else if (m.tipo === "entrada") titulo = `Entrada · ${producto} x${m.cantidad}`;
+  else if (m.tipo === "ajuste") titulo = `Ajuste manual · ${producto}`;
+
+  const detalle = `${m.usuarioNombre ? "Usuario: " + m.usuarioNombre + "<br>" : ""}${m.administradorNombre ? "Admin: " + m.administradorNombre + "<br>" : ""}${m.stockAntes !== undefined ? `Stock: ${m.stockAntes} → ${m.stockDespues}<br>` : ""}${formatFechaHora(m.fecha)}`;
+  const estadoClass = m.estado ? `estado-${m.estado}` : "";
+  const pillClass = m.estado ? `pill-${m.estado}` : "pill-aprobada";
+  const pillText = m.estado === "pendiente" ? "Pendiente" : m.estado === "rechazada" ? "Rechazado" : "Aprobado";
+
+  return `<div class="movement-card ${estadoClass}">
+    <div class="movement-top"><span class="movement-title">${titulo}</span><span class="pill ${pillClass}">${pillText}</span></div>
+    <div class="movement-detail">${detalle}</div>
+  </div>`;
+}
+
+function renderHistoryView() {
+  const fTipo = $("filter-tipo").value, fEstado = $("filter-estado").value;
+  const fProducto = $("filter-producto").value.trim().toLowerCase(), fFecha = $("filter-fecha").value;
+
+  const filtered = cache.movements.filter((m) => {
+    if (fTipo && m.tipo !== fTipo) return false;
+    if (fEstado && (m.estado || "aprobada") !== fEstado) return false;
+    if (fProducto) {
+      const nombre = (cache.products[m.productId]?.nombre || m.productNombre || "").toLowerCase();
+      if (!nombre.includes(fProducto)) return false;
+    }
+    if (fFecha && m.fecha) {
+      const d = m.fecha.toDate ? m.fecha.toDate() : new Date(m.fecha);
+      if (d.toISOString().slice(0, 10) !== fFecha) return false;
+    }
+    return true;
+  });
+  $("history-list").innerHTML = filtered.map(renderMovementCard).join("") || `<div class="empty-state">No hay movimientos con esos filtros.</div>`;
+}
+
+// ==========================================================
+// MODALES: acciones comunes
+// ==========================================================
+document.querySelectorAll("[data-close-modal]").forEach((btn) => btn.addEventListener("click", () => btn.closest(".modal").classList.add("hidden")));
+document.querySelectorAll(".qty-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const input = $(btn.dataset.target);
+    input.value = Math.max(1, parseInt(input.value || "1", 10) + parseInt(btn.dataset.delta, 10));
+    input.dispatchEvent(new Event("input"));
+  });
+});
+function fillProductSelect(selectEl) {
+  selectEl.innerHTML = productosActivos().map(([id, p]) => `<option value="${id}">${p.nombre}</option>`).join("");
+}
+
+// ----- Nueva venta -----
+$("btn-nueva-venta").addEventListener("click", () => openVentaModal());
+function openVentaModal(productId) {
+  fillProductSelect($("venta-producto"));
+  if (productId) $("venta-producto").value = productId;
+  $("venta-cantidad").value = 1;
+  $("venta-cliente").value = "";
+  $("venta-observaciones").value = "";
+  $("venta-error").classList.add("hidden");
+  updateVentaStockInfo();
+  $("modal-venta").classList.remove("hidden");
+}
+$("venta-producto").addEventListener("change", updateVentaStockInfo);
+$("venta-cantidad").addEventListener("input", updateVentaStockInfo);
+function updateVentaStockInfo() {
+  const disponible = getStockCantidad(currentUser.localId, $("venta-producto").value);
+  $("venta-stock-info").textContent = `Disponible en tu local: ${disponible} unidades`;
+}
+
+$("venta-submit-btn").addEventListener("click", async () => {
+  const productId = $("venta-producto").value;
+  const cantidad = parseInt($("venta-cantidad").value, 10);
+  const cliente = $("venta-cliente").value.trim();
+  const observaciones = $("venta-observaciones").value.trim();
+  const errorEl = $("venta-error");
+  errorEl.classList.add("hidden");
+
+  if (!productId || !cantidad || cantidad < 1) { errorEl.textContent = "Elegí un producto y una cantidad válida."; errorEl.classList.remove("hidden"); return; }
+  const disponible = getStockCantidad(currentUser.localId, productId);
+  if (cantidad > disponible) { errorEl.textContent = `Stock insuficiente. Este local tiene solamente ${disponible} unidades.`; errorEl.classList.remove("hidden"); return; }
+
+  try {
+    await db.collection("sales").add({
+      productId, productNombre: cache.products[productId]?.nombre || "", cantidad,
+      localId: currentUser.localId, usuarioUid: currentUser.uid, usuarioNombre: currentUser.nombre,
+      cliente: cliente || null, observaciones: observaciones || null, estado: "pendiente",
+      fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    $("modal-venta").classList.add("hidden");
+    showToast("Venta enviada correctamente. Está pendiente de aprobación.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo enviar la venta. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ----- Nueva entrada -----
+$("btn-nueva-entrada").addEventListener("click", () => {
+  fillProductSelect($("entrada-producto"));
+  $("entrada-cantidad").value = 1;
+  $("entrada-notas").value = "";
+  $("entrada-error").classList.add("hidden");
+  $("modal-entrada").classList.remove("hidden");
+});
+
+$("entrada-submit-btn").addEventListener("click", async () => {
+  const productId = $("entrada-producto").value;
+  const cantidad = parseInt($("entrada-cantidad").value, 10);
+  const notas = $("entrada-notas").value.trim();
+  const errorEl = $("entrada-error");
+  errorEl.classList.add("hidden");
+  if (!productId || !cantidad || cantidad < 1) { errorEl.textContent = "Elegí un producto y una cantidad válida."; errorEl.classList.remove("hidden"); return; }
+
+  try {
+    await db.collection("entries").add({
+      productId, productNombre: cache.products[productId]?.nombre || "", cantidad,
+      localId: currentUser.localId, usuarioUid: currentUser.uid, usuarioNombre: currentUser.nombre,
+      notas: notas || null, estado: "pendiente", fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    $("modal-entrada").classList.add("hidden");
+    showToast("Entrada solicitada. Queda pendiente de aprobación.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo enviar la solicitud. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ----- Nueva transferencia (origen = mi local) -----
+$("btn-nueva-transferencia").addEventListener("click", () => {
+  fillProductSelect($("transferencia-producto"));
+  populateLocaleSelects();
+  $("transferencia-cantidad").value = 1;
+  $("transferencia-error").classList.add("hidden");
+  updateTransferenciaStockInfo();
+  $("modal-transferencia").classList.remove("hidden");
+});
+["transferencia-producto", "transferencia-cantidad"].forEach((id) => { $(id).addEventListener("input", updateTransferenciaStockInfo); $(id).addEventListener("change", updateTransferenciaStockInfo); });
+function updateTransferenciaStockInfo() {
+  const disponible = getStockCantidad(currentUser.localId, $("transferencia-producto").value);
+  $("transferencia-stock-info").textContent = `Disponible en tu local: ${disponible} unidades`;
+}
+
+$("transferencia-submit-btn").addEventListener("click", async () => {
+  const productId = $("transferencia-producto").value;
+  const localDestino = $("transferencia-destino").value;
+  const cantidad = parseInt($("transferencia-cantidad").value, 10);
+  const errorEl = $("transferencia-error");
+  errorEl.classList.add("hidden");
+
+  if (!productId || !cantidad || cantidad < 1) { errorEl.textContent = "Elegí un producto y una cantidad válida."; errorEl.classList.remove("hidden"); return; }
+  const disponible = getStockCantidad(currentUser.localId, productId);
+  if (cantidad > disponible) { errorEl.textContent = `Stock insuficiente. Solamente hay ${disponible} unidades.`; errorEl.classList.remove("hidden"); return; }
+
+  try {
+    await db.collection("transfers").add({
+      productId, productNombre: cache.products[productId]?.nombre || "", cantidad,
+      localOrigen: currentUser.localId, localDestino,
+      usuarioUid: currentUser.uid, usuarioNombre: currentUser.nombre,
+      estado: "pendiente", fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    $("modal-transferencia").classList.add("hidden");
+    showToast("Transferencia solicitada. Queda pendiente de aprobación.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo enviar la solicitud. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+</script>
+</body>
+</html>
