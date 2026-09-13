@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tu Sueños - Ingresar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --indigo-950: #1B1F3B;
+    --indigo-800: #2A3163;
+    --indigo-600: #3E4785;
+    --sand-100: #FBF9F5;
+    --gold-500: #C9922E;
+    --state-red: #C0463F;
+    --text-muted: #6B6E85;
+    --border-soft: #E3E1EE;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: var(--font-body); }
+  .hidden { display: none !important; }
+
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, var(--indigo-950) 0%, var(--indigo-800) 55%, var(--indigo-600) 100%);
+    padding: 24px;
+  }
+  .login-card {
+    background: var(--sand-100);
+    border-radius: 20px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .brand { font-family: var(--font-display); font-size: 32px; font-weight: 600; margin: 0 0 2px; color: var(--indigo-950); text-align: center; }
+  .brand-sub { text-align: center; color: var(--text-muted); margin: 0 0 28px; font-size: 14px; }
+  #login-form label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 14px 0 6px; }
+  #login-form input {
+    width: 100%; padding: 12px 14px; border-radius: 10px;
+    border: 1.5px solid var(--border-soft); font-size: 15px; background: #fff;
+  }
+  #login-form input:focus { outline: 2px solid var(--gold-500); border-color: transparent; }
+  .btn {
+    border: none; border-radius: 10px; padding: 13px 18px; font-size: 15px;
+    font-weight: 600; width: 100%; margin-top: 22px; background: var(--indigo-950); color: #fff;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn[disabled] { opacity: 0.6; }
+  .error-text { color: var(--state-red); font-size: 13.5px; margin-top: 10px; }
+
+  #loading-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--indigo-950);
+    color: #fff;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Se muestra mientras se verifica si ya hay una sesión activa -->
+<div id="loading-screen">Cargando...</div>
+
+<section id="login-screen" class="hidden">
+  <div class="login-card">
+    <h1 class="brand">Tu Sueños</h1>
+    <p class="brand-sub">Control de stock</p>
+    <form id="login-form">
+      <label for="login-email">Correo</label>
+      <input type="email" id="login-email" required autocomplete="username">
+
+      <label for="login-password">Contraseña</label>
+      <input type="password" id="login-password" required autocomplete="current-password">
+
+      <button type="submit" class="btn" id="login-btn">Ingresar</button>
+      <p id="login-error" class="error-text hidden"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ SDKs de Firebase (compat, vía CDN) ============ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // ==========================================================
+  // CONFIGURACIÓN DE FIREBASE - Tu Sueños
+  // ==========================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyDn7qYymsn3Rd7F3UkL0xNaotQNbbCrwUw",
+    authDomain: "tusuenoscolchones.firebaseapp.com",
+    projectId: "tusuenoscolchones",
+    storageBucket: "tusuenoscolchones.firebasestorage.app",
+    messagingSenderId: "286720480102",
+    appId: "1:286720480102:web:162a56256e4be40cc0aea7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const $ = (id) => document.getElementById(id);
+
+  // Si ya hay una sesión activa, redirige directo según el rol
+  // (evita que alguien logueado vuelva a ver el formulario de login).
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      $("loading-screen").classList.add("hidden");
+      $("login-screen").classList.remove("hidden");
+      return;
+    }
+    try {
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      if (!userDoc.exists || userDoc.data().activo === false) {
+        await auth.signOut();
+        $("loading-screen").classList.add("hidden");
+        $("login-screen").classList.remove("hidden");
+        $("login-error").textContent = "Tu usuario no está habilitado. Avisá al administrador.";
+        $("login-error").classList.remove("hidden");
+        return;
+      }
+      redirigirSegunRol(userDoc.data().rol);
+    } catch (err) {
+      console.error(err);
+      $("loading-screen").classList.add("hidden");
+      $("login-screen").classList.remove("hidden");
+    }
+  });
+
+  function redirigirSegunRol(rol) {
+    if (rol === "admin") window.location.href = "admin.html";
+    else window.location.href = "usuario.html";
+  }
+
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("login-email").value.trim();
+    const password = $("login-password").value;
+    const errorEl = $("login-error");
+    const btn = $("login-btn");
+    errorEl.classList.add("hidden");
+    btn.disabled = true;
+    btn.textContent = "Ingresando...";
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      // El redireccionamiento ocurre en onAuthStateChanged
+    } catch (err) {
+      errorEl.textContent = "No se pudo iniciar sesión. Revisá el correo y la contraseña.";
+      errorEl.classList.remove("hidden");
+      btn.disabled = false;
+      btn.textContent = "Ingresar";
+    }
+  });
+</script>
+</body>
+</html>
