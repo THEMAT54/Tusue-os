@@ -470,9 +470,30 @@ function startListeners() {
 
   unsubscribers.push(
     db.collection("movements").where("localId", "==", currentUser.localId).orderBy("fecha", "desc").limit(200)
-      .onSnapshot((snap) => { cache.movements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
-        (err) => console.error("movements listener:", err))
+      .onSnapshot(
+        (snap) => { cache.movements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
+        (err) => {
+          console.error("movements listener:", err);
+          mostrarErrorHistorial(err);
+        }
+      )
   );
+}
+
+function mostrarErrorHistorial(err) {
+  const match = (err.message || "").match(/https:\/\/[^\s]+/);
+  if (match) {
+    const link = match[0];
+    const html = `<div class="empty-state">
+      No se pudo cargar el historial: a Firestore le falta un índice.<br><br>
+      <a href="${link}" target="_blank" style="color:var(--indigo-950); font-weight:600;">Tocá acá para crearlo automáticamente</a><br><br>
+      Después de crearlo (tarda 1-2 minutos en Firebase), volvé a entrar a la app.
+    </div>`;
+    $("history-list").innerHTML = html;
+  } else {
+    $("history-list").innerHTML = `<div class="empty-state">No se pudo cargar el historial (${err.code || err.message || "error desconocido"}).</div>`;
+  }
+  showToast("No se pudo cargar el historial. Revisá la pestaña Historial.", "error");
 }
 
 function renderAll() {
