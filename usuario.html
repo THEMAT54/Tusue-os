@@ -332,6 +332,7 @@ const FORMAS_PAGO = { contado: "De contado", transferencia: "Transferencia", deb
 // ESTADO GLOBAL Y UTILIDADES
 // ==========================================================
 let currentUser = null; // { uid, nombre, localId }
+let movementsErrorHtml = null; // si Firestore falla al leer el historial, guardamos el aviso acá para que no se lo pise otro render
 const cache = { products: {}, stock: {}, sales: {}, transfers: {}, entries: {}, movements: [] };
 let unsubscribers = [];
 
@@ -484,15 +485,15 @@ function mostrarErrorHistorial(err) {
   const match = (err.message || "").match(/https:\/\/[^\s]+/);
   if (match) {
     const link = match[0];
-    const html = `<div class="empty-state">
+    movementsErrorHtml = `<div class="empty-state">
       No se pudo cargar el historial: a Firestore le falta un índice.<br><br>
       <a href="${link}" target="_blank" style="color:var(--indigo-950); font-weight:600;">Tocá acá para crearlo automáticamente</a><br><br>
       Después de crearlo (tarda 1-2 minutos en Firebase), volvé a entrar a la app.
     </div>`;
-    $("history-list").innerHTML = html;
   } else {
-    $("history-list").innerHTML = `<div class="empty-state">No se pudo cargar el historial (${err.code || err.message || "error desconocido"}).</div>`;
+    movementsErrorHtml = `<div class="empty-state">No se pudo cargar el historial (${err.code || err.message || "error desconocido"}).</div>`;
   }
+  $("history-list").innerHTML = movementsErrorHtml;
   showToast("No se pudo cargar el historial. Revisá la pestaña Historial.", "error");
 }
 
@@ -686,6 +687,8 @@ function renderMovementCard(m) {
 }
 
 function renderHistoryView() {
+  if (movementsErrorHtml) { $("history-list").innerHTML = movementsErrorHtml; return; }
+
   const fTipo = $("filter-tipo").value, fEstado = $("filter-estado").value;
   const fProducto = $("filter-producto").value.trim().toLowerCase(), fFecha = $("filter-fecha").value;
 
