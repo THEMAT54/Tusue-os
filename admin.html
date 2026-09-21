@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tu Sueños - Administración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-950: #1B1F3B; --indigo-800: #2A3163; --indigo-600: #3E4785;
+  --lavender-50: #F3F2FA; --lavender-100: #E7E5F5; --sand-100: #FBF9F5;
+  --gold-500: #C9922E; --gold-600: #B07F26;
+  --sage-500: #5E8B7E; --sage-600: #4C7266;
+  --state-green: #3C8F5E; --state-green-bg: #E3F3EA;
+  --state-yellow: #B8801E; --state-yellow-bg: #FBF0DC;
+  --state-red: #C0463F; --state-red-bg: #FBE8E7;
+  --text-main: #23263B; --text-muted: #6B6E85; --border-soft: #E3E1EE;
+  --radius-card: 14px; --radius-control: 10px;
+  --shadow-card: 0 1px 3px rgba(27, 31, 59, 0.08), 0 6px 16px rgba(27, 31, 59, 0.05);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--lavender-50); color: var(--text-main); font-family: var(--font-body); -webkit-tap-highlight-color: transparent; }
+.hidden { display: none !important; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+.btn { border: none; border-radius: var(--radius-control); padding: 13px 18px; font-size: 15px; font-weight: 600; transition: transform 0.08s ease; }
+.btn:active { transform: scale(0.98); }
+.btn-block { width: 100%; }
+.btn-primary { background: var(--indigo-950); color: #fff; }
+.btn-secondary { background: var(--sage-500); color: #fff; }
+.btn-outline { background: transparent; color: var(--indigo-950); border: 1.5px solid var(--indigo-950); }
+.btn-ghost { background: transparent; color: var(--text-muted); font-weight: 500; }
+.btn-approve { background: var(--state-green); color: #fff; }
+.btn-reject { background: var(--state-red); color: #fff; }
+.btn-small { padding: 9px 14px; font-size: 13.5px; border-radius: 8px; }
+
+#loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--indigo-950); color: #fff; font-size: 14px; }
+
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--indigo-950); color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-small { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: #fff; }
+.topbar-location { font-size: 12px; color: var(--lavender-100); opacity: 0.85; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.user-name { font-size: 13px; color: var(--lavender-100); }
+.topbar .btn-ghost { color: #fff; padding: 6px 10px; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; background: #fff; border-top: 1px solid var(--border-soft); display: flex; justify-content: space-around; padding: 6px 2px calc(6px + env(safe-area-inset-bottom)); }
+.nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text-muted); padding: 6px 4px; flex: 1; position: relative; }
+.nav-btn.active { color: var(--indigo-950); font-weight: 600; }
+.nav-icon { font-size: 20px; }
+.badge { position: absolute; top: 0; right: 12%; background: var(--state-red); color: #fff; font-size: 10px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+
+.content { padding: 16px 16px calc(90px + env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+.section-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 22px 0 10px; color: var(--indigo-950); }
+.section-title:first-child { margin-top: 4px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-card { background: #fff; border-radius: var(--radius-card); padding: 14px 10px; text-align: center; box-shadow: var(--shadow-card); }
+.stat-card .stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--indigo-950); display: block; }
+.stat-card .stat-label { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; display: block; }
+.stat-card.stat-pendiente .stat-value { color: var(--state-yellow); }
+
+.section-title-row { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 10px; gap: 10px; }
+.section-title-row .section-title { margin: 0; }
+.section-title-row select { padding: 8px 10px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); background: #fff; font-size: 13px; font-weight: 600; color: var(--indigo-950); }
+
+.ventas-mes-card { background: linear-gradient(135deg, var(--indigo-950), var(--indigo-600)); border-radius: var(--radius-card); padding: 14px 18px; color: #fff; }
+.ventas-mes-card .ventas-mes-label { font-size: 12px; opacity: 0.85; display: block; }
+.ventas-mes-card .ventas-mes-valor { font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+.local-venta-row { display: flex; justify-content: space-between; align-items: center; }
+.local-venta-row .local-venta-monto { font-family: var(--font-display); font-weight: 600; color: var(--indigo-950); }
+
+.locales-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.locale-card { background: #fff; border-radius: var(--radius-card); padding: 16px; box-shadow: var(--shadow-card); cursor: pointer; border-left: 4px solid var(--gold-500); }
+.locale-card h3 { margin: 0 0 4px; font-size: 15px; color: var(--indigo-950); }
+.locale-card .locale-count { font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+.locale-card .locale-sub { font-size: 12px; color: var(--text-muted); }
+
+.search-bar { margin-bottom: 12px; }
+.search-bar input, .filters-bar input, .filters-bar select { width: 100%; padding: 12px 14px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); background: #fff; font-size: 14.5px; }
+.filters-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.filters-bar input[type="text"], .filters-bar input[type="date"] { grid-column: span 2; }
+
+.locale-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 2px; }
+.locale-tab-btn { white-space: nowrap; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--border-soft); background: #fff; color: var(--text-muted); font-size: 13.5px; font-weight: 600; }
+.locale-tab-btn.active { background: var(--indigo-950); border-color: var(--indigo-950); color: #fff; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab-btn { flex: 1; padding: 10px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); background: #fff; color: var(--text-muted); font-weight: 600; font-size: 13.5px; }
+.tab-btn.active { background: var(--indigo-950); color: #fff; border-color: var(--indigo-950); }
+
+.product-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.product-card { background: #fff; border-radius: var(--radius-card); padding: 16px; box-shadow: var(--shadow-card); }
+.product-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.product-card h4 { margin: 0; font-size: 15.5px; color: var(--indigo-950); font-weight: 600; }
+.product-card .product-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.product-card .product-stock { font-family: var(--font-display); font-size: 21px; font-weight: 600; color: var(--indigo-950); white-space: nowrap; }
+.product-card .product-stock.stock-zero { color: var(--state-red); }
+.product-card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.product-card .stock-breakdown { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.stock-chip { font-size: 12px; background: var(--lavender-50); border: 1px solid var(--border-soft); border-radius: 8px; padding: 4px 8px; color: var(--text-main); }
+
+.fotos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.foto-thumb { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: var(--lavender-50); border: 1px solid var(--border-soft); }
+.foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-thumb .foto-eliminar { position: absolute; top: 4px; right: 4px; background: rgba(27,31,59,0.75); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; line-height: 1; }
+.foto-thumb.foto-loading { display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); text-align: center; padding: 4px; }
+
+.movement-list { display: flex; flex-direction: column; gap: 10px; }
+.empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 28px 10px; }
+.movement-card { background: #fff; border-radius: var(--radius-card); padding: 14px 16px; box-shadow: var(--shadow-card); border-left: 4px solid var(--border-soft); }
+.movement-card.estado-pendiente { border-left-color: var(--state-yellow); }
+.movement-card.estado-aprobada { border-left-color: var(--state-green); }
+.movement-card.estado-rechazada { border-left-color: var(--state-red); }
+.movement-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.movement-title { font-weight: 600; font-size: 14.5px; color: var(--indigo-950); }
+.movement-detail { font-size: 13px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+.movement-actions { display: flex; gap: 8px; margin-top: 12px; }
+.pill { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.pill-pendiente { background: var(--state-yellow-bg); color: var(--state-yellow); }
+.pill-aprobada { background: var(--state-green-bg); color: var(--state-green); }
+.pill-rechazada { background: var(--state-red-bg); color: var(--state-red); }
+
+.modal { position: fixed; inset: 0; background: rgba(27, 31, 59, 0.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+.modal-content { background: #fff; border-radius: 20px 20px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; }
+.modal-content h3 { font-family: var(--font-display); color: var(--indigo-950); margin: 0 0 16px; font-size: 19px; }
+.modal-content label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 14px 0 6px; }
+.modal-content input[type="text"], .modal-content input[type="number"], .modal-content select, .modal-content textarea { width: 100%; padding: 12px 14px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); font-size: 15px; background: #fff; }
+.modal-content textarea { resize: vertical; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-main); }
+.checkbox-label input { width: auto; }
+.qty-control { display: flex; align-items: center; gap: 10px; }
+.qty-control input { text-align: center; width: 70px; padding: 10px; border-radius: var(--radius-control); border: 1.5px solid var(--border-soft); }
+.qty-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--indigo-950); background: #fff; color: var(--indigo-950); font-size: 20px; font-weight: 700; line-height: 1; }
+.hint-text { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; }
+.error-text { color: var(--state-red); font-size: 13.5px; margin-top: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+.modal-actions .btn { flex: 1; }
+
+.toast { position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%); background: var(--indigo-950); color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 13.5px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 90vw; text-align: center; }
+.toast.toast-error { background: var(--state-red); }
+.toast.toast-success { background: var(--state-green); }
+
+@media (min-width: 640px) {
+  .locales-grid { grid-template-columns: repeat(4, 1fr); }
+  .stat-row { grid-template-columns: repeat(3, 1fr); }
+  .modal { align-items: center; }
+  .modal-content { border-radius: 20px; }
+  .bottom-nav { max-width: 720px; left: 50%; transform: translateX(-50%); border-radius: 16px 16px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">Cargando...</div>
+<div id="toast" class="toast hidden"></div>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="brand-small">Tu Sueños</span>
+      <span class="topbar-location">Administración</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="user-name" class="user-name"></span>
+      <button id="logout-btn" class="btn btn-ghost">Salir</button>
+    </div>
+  </header>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="view-dashboard"><span class="nav-icon">🏠</span><span>Inicio</span></button>
+    <button class="nav-btn" data-view="view-stock"><span class="nav-icon">📦</span><span>Stock</span></button>
+    <button class="nav-btn" data-view="view-pending"><span class="nav-icon">🟡</span><span>Aprobar</span><span id="pending-badge" class="badge hidden">0</span></button>
+    <button class="nav-btn" data-view="view-history"><span class="nav-icon">📋</span><span>Historial</span></button>
+    <button class="nav-btn" data-view="view-products"><span class="nav-icon">🛋️</span><span>Productos</span></button>
+  </nav>
+
+  <main class="content">
+
+    <section id="view-dashboard" class="view">
+      <h2 class="section-title">Stock total</h2>
+      <div class="stat-row" id="admin-summary-cards"></div>
+
+      <h2 class="section-title">Locales</h2>
+      <div class="locales-grid" id="admin-locales-grid"></div>
+
+      <div class="section-title-row">
+        <h2 class="section-title">Ventas por local</h2>
+        <select id="ventas-mes-select"></select>
+      </div>
+      <div id="ventas-por-local-total" class="ventas-mes-card"></div>
+      <div id="ventas-por-local-list" class="movement-list" style="margin-top:10px;"></div>
+
+      <h2 class="section-title">Últimos movimientos</h2>
+      <div id="admin-recent-movements" class="movement-list"></div>
+
+      <button id="seed-data-btn" class="btn btn-outline btn-block" style="margin-top:18px;">Cargar datos de prueba</button>
+    </section>
+
+    <section id="view-stock" class="view hidden">
+      <div class="search-bar"><input type="text" id="search-input" placeholder="🔍 Buscar producto..."></div>
+      <div id="admin-locale-tabs" class="locale-tabs"></div>
+      <div id="stock-list" class="product-grid"></div>
+    </section>
+
+    <section id="view-pending" class="view hidden">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="pending-sales">Ventas</button>
+        <button class="tab-btn" data-tab="pending-transfers">Transferencias</button>
+        <button class="tab-btn" data-tab="pending-entries">Entradas</button>
+      </div>
+      <div id="pending-sales" class="tab-panel movement-list"></div>
+      <div id="pending-transfers" class="tab-panel movement-list hidden"></div>
+      <div id="pending-entries" class="tab-panel movement-list hidden"></div>
+    </section>
+
+    <section id="view-history" class="view hidden">
+      <div class="filters-bar">
+        <select id="filter-local"><option value="">Todos los locales</option></select>
+        <select id="filter-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="venta">Ventas</option>
+          <option value="transferencia">Transferencias</option>
+          <option value="entrada">Entradas</option>
+          <option value="ajuste">Ajustes</option>
+        </select>
+        <select id="filter-estado">
+          <option value="">Todos los estados</option>
+          <option value="aprobada">Aprobado</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="rechazada">Rechazado</option>
+        </select>
+        <input type="text" id="filter-producto" placeholder="Filtrar por producto...">
+        <input type="date" id="filter-fecha">
+      </div>
+      <div id="history-list" class="movement-list"></div>
+    </section>
+
+    <section id="view-products" class="view hidden">
+      <button id="btn-nuevo-producto" class="btn btn-primary btn-block">+ Nuevo producto</button>
+      <div id="products-admin-list" class="product-grid" style="margin-top:14px;"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal: Nueva transferencia -->
+<div id="modal-transferencia" class="modal hidden">
+  <div class="modal-content">
+    <h3>Solicitar transferencia</h3>
+    <label>Local origen</label>
+    <select id="transferencia-origen"></select>
+    <label>Local destino</label>
+    <select id="transferencia-destino"></select>
+    <label>Producto</label>
+    <select id="transferencia-producto"></select>
+    <label>Cantidad</label>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" data-target="transferencia-cantidad" data-delta="-1">−</button>
+      <input type="number" id="transferencia-cantidad" value="1" min="1">
+      <button type="button" class="qty-btn" data-target="transferencia-cantidad" data-delta="1">+</button>
+    </div>
+    <p id="transferencia-stock-info" class="hint-text"></p>
+    <p id="transferencia-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="transferencia-submit-btn">Solicitar transferencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Registrar / solicitar entrada -->
+<div id="modal-entrada" class="modal hidden">
+  <div class="modal-content">
+    <h3>Registrar entrada de mercadería</h3>
+    <p id="entrada-local-info" class="hint-text"></p>
+    <label>Producto</label>
+    <select id="entrada-producto"></select>
+    <label>Cantidad</label>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" data-target="entrada-cantidad" data-delta="-1">−</button>
+      <input type="number" id="entrada-cantidad" value="1" min="1">
+      <button type="button" class="qty-btn" data-target="entrada-cantidad" data-delta="1">+</button>
+    </div>
+    <label>Notas (opcional)</label>
+    <textarea id="entrada-notas" rows="2"></textarea>
+    <p id="entrada-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="entrada-submit-btn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ajustar stock manualmente -->
+<div id="modal-ajuste" class="modal hidden">
+  <div class="modal-content">
+    <h3>Ajustar stock manualmente</h3>
+    <p id="ajuste-info" class="hint-text"></p>
+    <label>Nueva cantidad</label>
+    <input type="number" id="ajuste-cantidad" min="0">
+    <label>Motivo (opcional)</label>
+    <textarea id="ajuste-motivo" rows="2"></textarea>
+    <p id="ajuste-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="ajuste-submit-btn">Guardar ajuste</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nuevo / Editar producto -->
+<div id="modal-producto" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="producto-modal-title">Nuevo producto</h3>
+    <input type="hidden" id="producto-id">
+    <label>Nombre</label>
+    <input type="text" id="producto-nombre" placeholder="Ej: Dakar 1,40 x 1,90">
+    <label>Categoría</label>
+    <input type="text" id="producto-categoria" placeholder="Ej: Colchones">
+    <label>Medida</label>
+    <input type="text" id="producto-medida" placeholder="Ej: 1,40 x 1,90">
+    <label>Precio de lista</label>
+    <input type="number" id="producto-precio" placeholder="Ej: 150000" min="0" step="0.01">
+    <label>Notas (opcional)</label>
+    <textarea id="producto-notas" rows="2"></textarea>
+    <label class="checkbox-label"><input type="checkbox" id="producto-activo" checked> Producto activo</label>
+
+    <div id="producto-fotos-wrap" class="hidden">
+      <label>Fotos del producto</label>
+      <div id="producto-fotos-grid" class="fotos-grid"></div>
+      <input type="file" id="producto-foto-input" accept="image/*" class="hidden">
+      <button type="button" class="btn btn-outline btn-small" id="producto-agregar-foto-btn">📷 Agregar foto</button>
+    </div>
+    <p id="producto-fotos-hint" class="hint-text hidden">Guardá el producto primero; después volvé a "Editar" para agregarle fotos.</p>
+
+    <p id="producto-error" class="error-text hidden"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+      <button class="btn btn-primary" id="producto-submit-btn">Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SDKs de Firebase (compat, vía CDN) ============ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ==========================================================
+// CONFIGURACIÓN DE FIREBASE
+// ==========================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDn7qYymsn3Rd7F3UkL0xNaotQNbbCrwUw",
+  authDomain: "tusuenoscolchones.firebaseapp.com",
+  projectId: "tusuenoscolchones",
+  storageBucket: "tusuenoscolchones.firebasestorage.app",
+  messagingSenderId: "286720480102",
+  appId: "1:286720480102:web:162a56256e4be40cc0aea7"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const LOCALES = { local1: "Local 1", local2: "Local 2", local3: "Local 3", local4: "Local 4" };
+const FORMAS_PAGO = { contado: "De contado", transferencia: "Transferencia", debito: "Débito", credito: "Crédito", otro: "Otro" };
+
+// ==========================================================
+// ESTADO GLOBAL Y UTILIDADES
+// ==========================================================
+let currentUser = null; // { uid, nombre }
+const cache = { products: {}, stock: {}, sales: {}, transfers: {}, entries: {}, movements: [] };
+let unsubscribers = [];
+let activeStockLocaleTab = null;
+
+const $ = (id) => document.getElementById(id);
+
+function showToast(message, type = "") {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.className = "toast" + (type ? " toast-" + type : "");
+  toast.classList.remove("hidden");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.add("hidden"), 3200);
+}
+
+function formatFechaHora(timestamp) {
+  if (!timestamp) return "";
+  const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return d.toLocaleDateString("es-AR") + " " + d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function stockKey(localId, productId) { return `${localId}_${productId}`; }
+function getStockCantidad(localId, productId) {
+  const doc = cache.stock[stockKey(localId, productId)];
+  return doc ? doc.cantidad : 0;
+}
+function getStockTotal(productId) {
+  return Object.keys(LOCALES).reduce((sum, localId) => sum + getStockCantidad(localId, productId), 0);
+}
+function productosActivos() {
+  return Object.entries(cache.products).filter(([, p]) => p.activo !== false).sort((a, b) => a[1].nombre.localeCompare(b[1].nombre));
+}
+
+// ==========================================================
+// AUTENTICACIÓN — esta página es exclusiva para rol "admin"
+// ==========================================================
+$("logout-btn").addEventListener("click", () => auth.signOut());
+
+auth.onAuthStateChanged(async (user) => {
+  cleanupListeners();
+  if (!user) { window.location.href = "login.html"; return; }
+  try {
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if (!userDoc.exists) {
+      $("loading-screen").textContent = "Tu usuario no tiene perfil configurado en Firestore. Volviendo al login...";
+      await auth.signOut();
+      setTimeout(() => (window.location.href = "login.html"), 2500);
+      return;
+    }
+    const data = userDoc.data();
+    if (data.activo === false) {
+      $("loading-screen").textContent = "Tu usuario está desactivado. Volviendo al login...";
+      await auth.signOut();
+      setTimeout(() => (window.location.href = "login.html"), 2500);
+      return;
+    }
+    const rol = (data.rol || "").trim().toLowerCase();
+    if (rol !== "admin") {
+      if (rol === "local") { window.location.href = "usuario.html"; return; }
+      $("loading-screen").textContent = 'Tu usuario no tiene un rol válido ("admin" o "local"). Volviendo al login...';
+      await auth.signOut();
+      setTimeout(() => (window.location.href = "login.html"), 2500);
+      return;
+    }
+
+    currentUser = { uid: user.uid, nombre: data.nombre || user.email };
+    $("loading-screen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    $("user-name").textContent = currentUser.nombre;
+
+    populateLocaleSelects();
+    startListeners();
+  } catch (err) {
+    console.error(err);
+    $("loading-screen").textContent = "No se pudo leer tu perfil (revisá las reglas de Firestore). Detalle: " + (err.message || err.code || "desconocido");
+    showToast("Error al cargar tu perfil.", "error");
+  }
+});
+
+function cleanupListeners() { unsubscribers.forEach((u) => u()); unsubscribers = []; }
+
+function populateLocaleSelects() {
+  const filterLocal = $("filter-local");
+  filterLocal.innerHTML = '<option value="">Todos los locales</option>';
+  Object.entries(LOCALES).forEach(([id, nombre]) => (filterLocal.innerHTML += `<option value="${id}">${nombre}</option>`));
+
+  const destino = $("transferencia-destino"), origen = $("transferencia-origen");
+  destino.innerHTML = ""; origen.innerHTML = "";
+  Object.entries(LOCALES).forEach(([id, nombre]) => {
+    destino.innerHTML += `<option value="${id}">${nombre}</option>`;
+    origen.innerHTML += `<option value="${id}">${nombre}</option>`;
+  });
+
+  generarOpcionesMeses();
+}
+
+function monthKeyOf(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`; }
+
+function generarOpcionesMeses() {
+  const select = $("ventas-mes-select");
+  const now = new Date();
+  let html = "";
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = monthKeyOf(d);
+    let label = d.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+    html += `<option value="${key}">${label}</option>`;
+  }
+  select.innerHTML = html;
+  select.addEventListener("change", renderVentasPorLocal);
+}
+
+function renderVentasPorLocal() {
+  const mesKey = $("ventas-mes-select").value || monthKeyOf(new Date());
+  const totales = {};
+  Object.keys(LOCALES).forEach((id) => (totales[id] = 0));
+  let totalGeneral = 0;
+
+  cache.movements.forEach((m) => {
+    if (m.tipo !== "venta" || m.estado !== "aprobada" || m.precio === undefined || m.precio === null) return;
+    const d = m.fecha?.toDate ? m.fecha.toDate() : (m.fecha ? new Date(m.fecha) : null);
+    if (!d || monthKeyOf(d) !== mesKey) return;
+    const monto = m.precio * m.cantidad;
+    totales[m.localId] = (totales[m.localId] || 0) + monto;
+    totalGeneral += monto;
+  });
+
+  const mesLabel = $("ventas-mes-select").selectedOptions[0]?.textContent || "";
+  $("ventas-por-local-total").innerHTML = `<span class="ventas-mes-label">Total vendido en ${mesLabel}</span><span class="ventas-mes-valor">${formatMoney(totalGeneral)}</span>`;
+
+  $("ventas-por-local-list").innerHTML = Object.entries(LOCALES).map(([id, nombre]) => `
+    <div class="movement-card">
+      <div class="local-venta-row"><span class="movement-title">${nombre}</span><span class="local-venta-monto">${formatMoney(totales[id])}</span></div>
+    </div>`).join("");
+}
+
+// ==========================================================
+// LISTENERS EN TIEMPO REAL (el admin ve todo)
+// ==========================================================
+function startListeners() {
+  unsubscribers.push(db.collection("products").onSnapshot((snap) => {
+    cache.products = {};
+    snap.forEach((doc) => (cache.products[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("stock").onSnapshot((snap) => {
+    cache.stock = {};
+    snap.forEach((doc) => (cache.stock[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("sales").onSnapshot((snap) => {
+    cache.sales = {};
+    snap.forEach((doc) => (cache.sales[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("transfers").onSnapshot((snap) => {
+    cache.transfers = {};
+    snap.forEach((doc) => (cache.transfers[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(db.collection("entries").onSnapshot((snap) => {
+    cache.entries = {};
+    snap.forEach((doc) => (cache.entries[doc.id] = doc.data()));
+    renderAll();
+  }));
+
+  unsubscribers.push(
+    db.collection("movements").orderBy("fecha", "desc").limit(200).onSnapshot(
+      (snap) => { cache.movements = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
+      (err) => console.error("movements listener:", err)
+    )
+  );
+}
+
+function renderAll() {
+  if (!currentUser) return;
+  renderDashboard();
+  renderVentasPorLocal();
+  renderStockView();
+  renderPendingView();
+  renderHistoryView();
+  renderProductsAdminView();
+  updatePendingBadge();
+}
+
+// ==========================================================
+// NAVEGACIÓN
+// ==========================================================
+document.querySelectorAll(".nav-btn").forEach((btn) => btn.addEventListener("click", () => goToView(btn.dataset.view)));
+function goToView(viewId) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.add("hidden"));
+  $(viewId).classList.remove("hidden");
+  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === viewId));
+}
+
+function updatePendingBadge() {
+  const count = Object.values(cache.sales).filter((s) => s.estado === "pendiente").length +
+    Object.values(cache.transfers).filter((t) => t.estado === "pendiente").length +
+    Object.values(cache.entries).filter((e) => e.estado === "pendiente").length;
+  const badge = $("pending-badge");
+  if (count > 0) { badge.textContent = count; badge.classList.remove("hidden"); } else badge.classList.add("hidden");
+}
+
+// ==========================================================
+// DASHBOARD
+// ==========================================================
+function renderDashboard() {
+  const ventasPend = Object.values(cache.sales).filter((s) => s.estado === "pendiente").length;
+  const transfPend = Object.values(cache.transfers).filter((t) => t.estado === "pendiente").length;
+  const entradasPend = Object.values(cache.entries).filter((e) => e.estado === "pendiente").length;
+
+  $("admin-summary-cards").innerHTML = `
+    <div class="stat-card stat-pendiente"><span class="stat-value">${ventasPend}</span><span class="stat-label">Ventas pend.</span></div>
+    <div class="stat-card stat-pendiente"><span class="stat-value">${transfPend}</span><span class="stat-label">Transf. pend.</span></div>
+    <div class="stat-card stat-pendiente"><span class="stat-value">${entradasPend}</span><span class="stat-label">Entradas pend.</span></div>
+  `;
+
+  $("admin-locales-grid").innerHTML = Object.entries(LOCALES).map(([id, nombre]) => {
+    const total = productosActivos().reduce((sum, [pid]) => sum + getStockCantidad(id, pid), 0);
+    return `<div class="locale-card" data-locale="${id}"><h3>${nombre}</h3><span class="locale-count">${total}</span><div class="locale-sub">unidades en stock</div></div>`;
+  }).join("");
+
+  document.querySelectorAll(".locale-card").forEach((el) => el.addEventListener("click", () => {
+    activeStockLocaleTab = el.dataset.locale;
+    goToView("view-stock");
+    renderStockView();
+  }));
+
+  $("admin-recent-movements").innerHTML = cache.movements.slice(0, 6).map(renderMovementCard).join("") || `<div class="empty-state">Todavía no hay movimientos registrados.</div>`;
+}
+
+// ==========================================================
+// STOCK (por pestañas de local)
+// ==========================================================
+function renderStockView() {
+  if (!activeStockLocaleTab) activeStockLocaleTab = Object.keys(LOCALES)[0];
+  $("admin-locale-tabs").innerHTML = Object.entries(LOCALES)
+    .map(([id, nombre]) => `<button class="locale-tab-btn ${id === activeStockLocaleTab ? "active" : ""}" data-locale="${id}">${nombre}</button>`).join("");
+  document.querySelectorAll(".locale-tab-btn").forEach((btn) => btn.addEventListener("click", () => { activeStockLocaleTab = btn.dataset.locale; renderStockView(); }));
+
+  const localId = activeStockLocaleTab;
+  const query = $("search-input").value.trim().toLowerCase();
+  const list = productosActivos().filter(([, p]) => !query || [p.nombre, p.medida, p.categoria].join(" ").toLowerCase().includes(query));
+
+  $("stock-list").innerHTML = list.map(([pid, p]) => {
+    const cantidad = getStockCantidad(localId, pid);
+    const zeroClass = cantidad === 0 ? "stock-zero" : "";
+    return `<div class="product-card">
+      <div class="product-card-top">
+        <div><h4>${p.nombre}</h4><div class="product-meta">${[p.categoria, p.medida].filter(Boolean).join(" · ")}</div></div>
+        <div class="product-stock ${zeroClass}">${cantidad}</div>
+      </div>
+      <div class="product-card-actions">
+        <button class="btn btn-outline btn-small btn-ajustar" data-product="${pid}" data-locale="${localId}">Ajustar stock</button>
+        <button class="btn btn-secondary btn-small btn-transferir" data-product="${pid}" data-locale="${localId}">Transferir</button>
+        <button class="btn btn-secondary btn-small btn-entrada-admin" data-product="${pid}" data-locale="${localId}">Registrar entrada</button>
+      </div>
+    </div>`;
+  }).join("") || `<div class="empty-state">No se encontraron productos.</div>`;
+
+  document.querySelectorAll(".btn-ajustar").forEach((btn) => btn.addEventListener("click", () => openAjusteModal(btn.dataset.locale, btn.dataset.product)));
+  document.querySelectorAll(".btn-transferir").forEach((btn) => btn.addEventListener("click", () => openTransferenciaModal(btn.dataset.product, btn.dataset.locale)));
+  document.querySelectorAll(".btn-entrada-admin").forEach((btn) => btn.addEventListener("click", () => openEntradaModal(btn.dataset.product, btn.dataset.locale)));
+}
+$("search-input").addEventListener("input", renderStockView);
+
+// ==========================================================
+// PENDIENTES / APROBACIÓN
+// ==========================================================
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.add("hidden"));
+    btn.classList.add("active");
+    $(btn.dataset.tab).classList.remove("hidden");
+  });
+});
+
+function renderPendingView() {
+  const ventas = Object.entries(cache.sales).filter(([, s]) => s.estado === "pendiente").map(([id, s]) => ({ id, ...s }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-sales").innerHTML = ventas.map((v) => renderPendingCard(v, "venta")).join("") || `<div class="empty-state">No hay ventas pendientes.</div>`;
+
+  const transferencias = Object.entries(cache.transfers).filter(([, t]) => t.estado === "pendiente").map(([id, t]) => ({ id, ...t }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-transfers").innerHTML = transferencias.map((t) => renderPendingCard(t, "transferencia")).join("") || `<div class="empty-state">No hay transferencias pendientes.</div>`;
+
+  const entradas = Object.entries(cache.entries).filter(([, e]) => e.estado === "pendiente").map(([id, e]) => ({ id, ...e }))
+    .sort((a, b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  $("pending-entries").innerHTML = entradas.map((e) => renderPendingCard(e, "entrada")).join("") || `<div class="empty-state">No hay entradas pendientes.</div>`;
+
+  attachApprovalHandlers();
+}
+
+function formatMoney(v) {
+  if (v === undefined || v === null || isNaN(v)) return "";
+  return "$" + Number(v).toLocaleString("es-AR");
+}
+
+function renderPendingCard(item, tipo) {
+  let titulo = "", detalle = "";
+  const producto = cache.products[item.productId]?.nombre || item.productNombre || "Producto";
+  if (tipo === "venta") {
+    const cruzada = item.localVendedor && item.localVendedor !== item.localId;
+    titulo = cruzada
+      ? `🔀 ${LOCALES[item.localVendedor]} vende stock de ${LOCALES[item.localId]} · ${producto} x${item.cantidad}`
+      : `${LOCALES[item.localId]} · ${producto} x${item.cantidad}`;
+    const precioTxt = item.precio !== undefined ? ` · ${formatMoney(item.precio)} c/u (total ${formatMoney(item.precio * item.cantidad)})` : "";
+    const pagoTxt = item.formaPago ? ` · ${FORMAS_PAGO[item.formaPago] || item.formaPago}` : "";
+    detalle = `Vendedor: ${item.usuarioNombre}${precioTxt}${pagoTxt}${item.cliente ? " · Cliente: " + item.cliente : ""}<br>${formatFechaHora(item.fechaCreacion)}`;
+  } else if (tipo === "transferencia") {
+    titulo = `${LOCALES[item.localOrigen]} → ${LOCALES[item.localDestino]} · ${producto} x${item.cantidad}`;
+    detalle = `Solicitado por: ${item.usuarioNombre}<br>${formatFechaHora(item.fechaCreacion)}`;
+  } else if (tipo === "entrada") {
+    titulo = `${LOCALES[item.localId]} · ${producto} x${item.cantidad}`;
+    detalle = `Solicitado por: ${item.usuarioNombre}<br>${formatFechaHora(item.fechaCreacion)}`;
+  }
+  return `<div class="movement-card estado-pendiente">
+    <div class="movement-top"><span class="movement-title">${titulo}</span><span class="pill pill-pendiente">Pendiente</span></div>
+    <div class="movement-detail">${detalle}</div>
+    <div class="movement-actions">
+      <button class="btn btn-approve btn-small btn-aprobar" data-tipo="${tipo}" data-id="${item.id}">Aprobar</button>
+      <button class="btn btn-reject btn-small btn-rechazar" data-tipo="${tipo}" data-id="${item.id}">Rechazar</button>
+    </div>
+  </div>`;
+}
+
+function attachApprovalHandlers() {
+  document.querySelectorAll(".btn-aprobar").forEach((btn) => (btn.onclick = () => handleApprove(btn.dataset.tipo, btn.dataset.id)));
+  document.querySelectorAll(".btn-rechazar").forEach((btn) => (btn.onclick = () => handleReject(btn.dataset.tipo, btn.dataset.id)));
+}
+
+// ==========================================================
+// HISTORIAL
+// ==========================================================
+["filter-local", "filter-tipo", "filter-estado", "filter-producto", "filter-fecha"].forEach((id) => $(id).addEventListener("input", renderHistoryView));
+
+function renderMovementCard(m) {
+  const producto = cache.products[m.productId]?.nombre || m.productNombre || "Producto";
+  let titulo = "";
+  if (m.tipo === "venta") {
+    const cruzada = m.localVendedor && m.localVendedor !== m.localId;
+    titulo = cruzada
+      ? `Venta · 🔀 ${LOCALES[m.localVendedor]} vendió stock de ${LOCALES[m.localId]} · ${producto} x${m.cantidad}`
+      : `Venta · ${LOCALES[m.localId]} · ${producto} x${m.cantidad}`;
+  }
+  else if (m.tipo === "transferencia") titulo = `Transferencia · ${LOCALES[m.localId]} → ${LOCALES[m.localDestino]} · ${producto} x${m.cantidad}`;
+  else if (m.tipo === "entrada") titulo = `Entrada · ${LOCALES[m.localId]} · ${producto} x${m.cantidad}`;
+  else if (m.tipo === "ajuste") titulo = `Ajuste manual · ${LOCALES[m.localId]} · ${producto}`;
+
+  const precioTxt = m.tipo === "venta" && m.precio !== undefined
+    ? `Precio: ${formatMoney(m.precio)} c/u (total ${formatMoney(m.precio * m.cantidad)})<br>` : "";
+  const pagoTxt = m.tipo === "venta" && m.formaPago ? `Forma de pago: ${FORMAS_PAGO[m.formaPago] || m.formaPago}<br>` : "";
+
+  const detalle = `${m.usuarioNombre ? "Usuario: " + m.usuarioNombre + "<br>" : ""}${m.administradorNombre ? "Admin: " + m.administradorNombre + "<br>" : ""}${precioTxt}${pagoTxt}${m.stockAntes !== undefined ? `Stock: ${m.stockAntes} → ${m.stockDespues}<br>` : ""}${formatFechaHora(m.fecha)}`;
+  const estadoClass = m.estado ? `estado-${m.estado}` : "";
+  const pillClass = m.estado ? `pill-${m.estado}` : "pill-aprobada";
+  const pillText = m.estado === "pendiente" ? "Pendiente" : m.estado === "rechazada" ? "Rechazado" : "Aprobado";
+
+  return `<div class="movement-card ${estadoClass}">
+    <div class="movement-top"><span class="movement-title">${titulo}</span><span class="pill ${pillClass}">${pillText}</span></div>
+    <div class="movement-detail">${detalle}</div>
+  </div>`;
+}
+
+function renderHistoryView() {
+  const fLocal = $("filter-local").value, fTipo = $("filter-tipo").value, fEstado = $("filter-estado").value;
+  const fProducto = $("filter-producto").value.trim().toLowerCase(), fFecha = $("filter-fecha").value;
+
+  const filtered = cache.movements.filter((m) => {
+    if (fLocal && m.localId !== fLocal) return false;
+    if (fTipo && m.tipo !== fTipo) return false;
+    if (fEstado && (m.estado || "aprobada") !== fEstado) return false;
+    if (fProducto) {
+      const nombre = (cache.products[m.productId]?.nombre || m.productNombre || "").toLowerCase();
+      if (!nombre.includes(fProducto)) return false;
+    }
+    if (fFecha && m.fecha) {
+      const d = m.fecha.toDate ? m.fecha.toDate() : new Date(m.fecha);
+      if (d.toISOString().slice(0, 10) !== fFecha) return false;
+    }
+    return true;
+  });
+  $("history-list").innerHTML = filtered.map(renderMovementCard).join("") || `<div class="empty-state">No hay movimientos con esos filtros.</div>`;
+}
+
+// ==========================================================
+// MODALES: utilidades comunes
+// ==========================================================
+document.querySelectorAll("[data-close-modal]").forEach((btn) => btn.addEventListener("click", () => btn.closest(".modal").classList.add("hidden")));
+document.querySelectorAll(".qty-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const input = $(btn.dataset.target);
+    input.value = Math.max(1, parseInt(input.value || "1", 10) + parseInt(btn.dataset.delta, 10));
+    input.dispatchEvent(new Event("input"));
+  });
+});
+function fillProductSelect(selectEl) {
+  selectEl.innerHTML = productosActivos().map(([id, p]) => `<option value="${id}">${p.nombre}</option>`).join("");
+}
+
+// ----- Transferencia -----
+function openTransferenciaModal(productId, localOrigenPreset) {
+  fillProductSelect($("transferencia-producto"));
+  populateLocaleSelects();
+  if (productId) $("transferencia-producto").value = productId;
+  if (localOrigenPreset) $("transferencia-origen").value = localOrigenPreset;
+  $("transferencia-cantidad").value = 1;
+  $("transferencia-error").classList.add("hidden");
+  updateTransferenciaStockInfo();
+  $("modal-transferencia").classList.remove("hidden");
+}
+["transferencia-producto", "transferencia-origen", "transferencia-cantidad"].forEach((id) => {
+  $(id).addEventListener("input", updateTransferenciaStockInfo);
+  $(id).addEventListener("change", updateTransferenciaStockInfo);
+});
+function updateTransferenciaStockInfo() {
+  const disponible = getStockCantidad($("transferencia-origen").value, $("transferencia-producto").value);
+  $("transferencia-stock-info").textContent = `Disponible en ${LOCALES[$("transferencia-origen").value]}: ${disponible} unidades`;
+}
+
+$("transferencia-submit-btn").addEventListener("click", async () => {
+  const productId = $("transferencia-producto").value;
+  const localOrigen = $("transferencia-origen").value;
+  const localDestino = $("transferencia-destino").value;
+  const cantidad = parseInt($("transferencia-cantidad").value, 10);
+  const errorEl = $("transferencia-error");
+  errorEl.classList.add("hidden");
+
+  if (!productId || !cantidad || cantidad < 1) { errorEl.textContent = "Elegí un producto y una cantidad válida."; errorEl.classList.remove("hidden"); return; }
+  if (localOrigen === localDestino) { errorEl.textContent = "El local de origen y destino no pueden ser el mismo."; errorEl.classList.remove("hidden"); return; }
+  const disponible = getStockCantidad(localOrigen, productId);
+  if (cantidad > disponible) { errorEl.textContent = `Stock insuficiente en ${LOCALES[localOrigen]}. Solamente hay ${disponible} unidades.`; errorEl.classList.remove("hidden"); return; }
+
+  try {
+    await db.collection("transfers").add({
+      productId, productNombre: cache.products[productId]?.nombre || "", cantidad, localOrigen, localDestino,
+      usuarioUid: currentUser.uid, usuarioNombre: currentUser.nombre, estado: "pendiente",
+      fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    $("modal-transferencia").classList.add("hidden");
+    showToast("Transferencia solicitada. Queda pendiente de aprobación.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo enviar la solicitud. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ----- Entrada -----
+function openEntradaModal(productId, localId) {
+  fillProductSelect($("entrada-producto"));
+  if (productId) $("entrada-producto").value = productId;
+  $("entrada-local-info").textContent = `Local: ${LOCALES[localId || activeStockLocaleTab]}`;
+  $("entrada-producto").dataset.localId = localId || activeStockLocaleTab;
+  $("entrada-cantidad").value = 1;
+  $("entrada-notas").value = "";
+  $("entrada-error").classList.add("hidden");
+  $("modal-entrada").classList.remove("hidden");
+}
+
+$("entrada-submit-btn").addEventListener("click", async () => {
+  const productId = $("entrada-producto").value;
+  const localId = $("entrada-producto").dataset.localId || activeStockLocaleTab;
+  const cantidad = parseInt($("entrada-cantidad").value, 10);
+  const notas = $("entrada-notas").value.trim();
+  const errorEl = $("entrada-error");
+  errorEl.classList.add("hidden");
+  if (!productId || !cantidad || cantidad < 1) { errorEl.textContent = "Elegí un producto y una cantidad válida."; errorEl.classList.remove("hidden"); return; }
+
+  try {
+    await db.collection("entries").add({
+      productId, productNombre: cache.products[productId]?.nombre || "", cantidad, localId,
+      usuarioUid: currentUser.uid, usuarioNombre: currentUser.nombre, notas: notas || null,
+      estado: "pendiente", fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    $("modal-entrada").classList.add("hidden");
+    showToast("Entrada registrada. Queda pendiente de aprobación.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo guardar la entrada. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ----- Ajuste manual -----
+let ajusteContext = null;
+function openAjusteModal(localId, productId) {
+  ajusteContext = { localId, productId };
+  const actual = getStockCantidad(localId, productId);
+  $("ajuste-info").textContent = `${LOCALES[localId]} · ${cache.products[productId]?.nombre} · Stock actual: ${actual}`;
+  $("ajuste-cantidad").value = actual;
+  $("ajuste-motivo").value = "";
+  $("ajuste-error").classList.add("hidden");
+  $("modal-ajuste").classList.remove("hidden");
+}
+
+$("ajuste-submit-btn").addEventListener("click", async () => {
+  const nuevaCantidad = parseInt($("ajuste-cantidad").value, 10);
+  const motivo = $("ajuste-motivo").value.trim();
+  const errorEl = $("ajuste-error");
+  errorEl.classList.add("hidden");
+  if (isNaN(nuevaCantidad) || nuevaCantidad < 0) { errorEl.textContent = "Ingresá una cantidad válida (0 o mayor)."; errorEl.classList.remove("hidden"); return; }
+
+  const { localId, productId } = ajusteContext;
+  const stockRef = db.collection("stock").doc(stockKey(localId, productId));
+  const movementRef = db.collection("movements").doc();
+
+  try {
+    await db.runTransaction(async (tx) => {
+      const stockDoc = await tx.get(stockRef);
+      const stockAntes = stockDoc.exists ? stockDoc.data().cantidad : 0;
+      tx.set(stockRef, { localId, productId, cantidad: nuevaCantidad }, { merge: true });
+      tx.set(movementRef, {
+        tipo: "ajuste", productId, productNombre: cache.products[productId]?.nombre || "",
+        cantidad: nuevaCantidad - stockAntes, localId, usuarioNombre: currentUser.nombre, administradorNombre: currentUser.nombre,
+        motivo: motivo || null, stockAntes, stockDespues: nuevaCantidad, estado: "aprobada",
+        fecha: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    $("modal-ajuste").classList.add("hidden");
+    showToast("Stock ajustado correctamente.", "success");
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo guardar el ajuste. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ==========================================================
+// APROBACIÓN / RECHAZO (transacciones atómicas)
+// ==========================================================
+async function handleApprove(tipo, id) {
+  try {
+    if (tipo === "venta") await approveSale(id);
+    else if (tipo === "transferencia") await approveTransfer(id);
+    else if (tipo === "entrada") await approveEntry(id);
+    showToast("Aprobado correctamente.", "success");
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || "No se pudo aprobar. Verificá el stock disponible.", "error");
+  }
+}
+async function handleReject(tipo, id) {
+  try {
+    if (tipo === "venta") await rejectSale(id);
+    else if (tipo === "transferencia") await rejectTransfer(id);
+    else if (tipo === "entrada") await rejectEntry(id);
+    showToast("Rechazado.", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo rechazar. Intentá de nuevo.", "error");
+  }
+}
+
+async function approveSale(saleId) {
+  const saleRef = db.collection("sales").doc(saleId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const saleDoc = await tx.get(saleRef);
+    if (!saleDoc.exists || saleDoc.data().estado !== "pendiente") throw new Error("Esta venta ya fue procesada.");
+    const sale = saleDoc.data();
+    const stockRef = db.collection("stock").doc(stockKey(sale.localId, sale.productId));
+    const stockDoc = await tx.get(stockRef);
+    const stockAntes = stockDoc.exists ? stockDoc.data().cantidad : 0;
+    if (stockAntes < sale.cantidad) throw new Error(`Stock insuficiente. ${LOCALES[sale.localId]} tiene solamente ${stockAntes} unidades.`);
+    const stockDespues = stockAntes - sale.cantidad;
+    tx.set(stockRef, { localId: sale.localId, productId: sale.productId, cantidad: stockDespues }, { merge: true });
+    tx.update(saleRef, { estado: "aprobada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "venta", productId: sale.productId, productNombre: sale.productNombre, cantidad: sale.cantidad, localId: sale.localId,
+      usuarioNombre: sale.usuarioNombre, administradorNombre: currentUser.nombre, stockAntes, stockDespues, estado: "aprobada",
+      precio: sale.precio ?? null, formaPago: sale.formaPago ?? null, cliente: sale.cliente ?? null, grupoVentaId: sale.grupoVentaId ?? null, localVendedor: sale.localVendedor ?? null,
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+async function rejectSale(saleId) {
+  const saleRef = db.collection("sales").doc(saleId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const saleDoc = await tx.get(saleRef);
+    if (!saleDoc.exists || saleDoc.data().estado !== "pendiente") throw new Error("Esta venta ya fue procesada.");
+    const sale = saleDoc.data();
+    tx.update(saleRef, { estado: "rechazada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "venta", productId: sale.productId, productNombre: sale.productNombre, cantidad: sale.cantidad, localId: sale.localId,
+      usuarioNombre: sale.usuarioNombre, administradorNombre: currentUser.nombre, estado: "rechazada",
+      precio: sale.precio ?? null, formaPago: sale.formaPago ?? null, cliente: sale.cliente ?? null, grupoVentaId: sale.grupoVentaId ?? null, localVendedor: sale.localVendedor ?? null,
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+async function approveTransfer(transferId) {
+  const transferRef = db.collection("transfers").doc(transferId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const transferDoc = await tx.get(transferRef);
+    if (!transferDoc.exists || transferDoc.data().estado !== "pendiente") throw new Error("Esta transferencia ya fue procesada.");
+    const transfer = transferDoc.data();
+    const origenRef = db.collection("stock").doc(stockKey(transfer.localOrigen, transfer.productId));
+    const destinoRef = db.collection("stock").doc(stockKey(transfer.localDestino, transfer.productId));
+    const origenDoc = await tx.get(origenRef);
+    const destinoDoc = await tx.get(destinoRef);
+    const origenAntes = origenDoc.exists ? origenDoc.data().cantidad : 0;
+    const destinoAntes = destinoDoc.exists ? destinoDoc.data().cantidad : 0;
+    if (origenAntes < transfer.cantidad) throw new Error(`Stock insuficiente en ${LOCALES[transfer.localOrigen]}. Solamente hay ${origenAntes} unidades.`);
+    const origenDespues = origenAntes - transfer.cantidad;
+    const destinoDespues = destinoAntes + transfer.cantidad;
+    tx.set(origenRef, { localId: transfer.localOrigen, productId: transfer.productId, cantidad: origenDespues }, { merge: true });
+    tx.set(destinoRef, { localId: transfer.localDestino, productId: transfer.productId, cantidad: destinoDespues }, { merge: true });
+    tx.update(transferRef, { estado: "aprobada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "transferencia", productId: transfer.productId, productNombre: transfer.productNombre, cantidad: transfer.cantidad,
+      localId: transfer.localOrigen, localDestino: transfer.localDestino, usuarioNombre: transfer.usuarioNombre,
+      administradorNombre: currentUser.nombre, stockAntes: origenAntes, stockDespues: origenDespues, estado: "aprobada",
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+async function rejectTransfer(transferId) {
+  const transferRef = db.collection("transfers").doc(transferId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const transferDoc = await tx.get(transferRef);
+    if (!transferDoc.exists || transferDoc.data().estado !== "pendiente") throw new Error("Esta transferencia ya fue procesada.");
+    const transfer = transferDoc.data();
+    tx.update(transferRef, { estado: "rechazada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "transferencia", productId: transfer.productId, productNombre: transfer.productNombre, cantidad: transfer.cantidad,
+      localId: transfer.localOrigen, localDestino: transfer.localDestino, usuarioNombre: transfer.usuarioNombre,
+      administradorNombre: currentUser.nombre, estado: "rechazada", fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+async function approveEntry(entryId) {
+  const entryRef = db.collection("entries").doc(entryId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const entryDoc = await tx.get(entryRef);
+    if (!entryDoc.exists || entryDoc.data().estado !== "pendiente") throw new Error("Esta entrada ya fue procesada.");
+    const entry = entryDoc.data();
+    const stockRef = db.collection("stock").doc(stockKey(entry.localId, entry.productId));
+    const stockDoc = await tx.get(stockRef);
+    const stockAntes = stockDoc.exists ? stockDoc.data().cantidad : 0;
+    const stockDespues = stockAntes + entry.cantidad;
+    tx.set(stockRef, { localId: entry.localId, productId: entry.productId, cantidad: stockDespues }, { merge: true });
+    tx.update(entryRef, { estado: "aprobada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "entrada", productId: entry.productId, productNombre: entry.productNombre, cantidad: entry.cantidad, localId: entry.localId,
+      usuarioNombre: entry.usuarioNombre, administradorNombre: currentUser.nombre, stockAntes, stockDespues, estado: "aprobada",
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+async function rejectEntry(entryId) {
+  const entryRef = db.collection("entries").doc(entryId);
+  const movementRef = db.collection("movements").doc();
+  await db.runTransaction(async (tx) => {
+    const entryDoc = await tx.get(entryRef);
+    if (!entryDoc.exists || entryDoc.data().estado !== "pendiente") throw new Error("Esta entrada ya fue procesada.");
+    const entry = entryDoc.data();
+    tx.update(entryRef, { estado: "rechazada", aprobadoPorUid: currentUser.uid, aprobadoPorNombre: currentUser.nombre, fechaResolucion: firebase.firestore.FieldValue.serverTimestamp() });
+    tx.set(movementRef, {
+      tipo: "entrada", productId: entry.productId, productNombre: entry.productNombre, cantidad: entry.cantidad, localId: entry.localId,
+      usuarioNombre: entry.usuarioNombre, administradorNombre: currentUser.nombre, estado: "rechazada",
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+}
+
+// ==========================================================
+// PRODUCTOS
+// ==========================================================
+function renderProductsAdminView() {
+  const list = Object.entries(cache.products).sort((a, b) => a[1].nombre.localeCompare(b[1].nombre));
+  $("products-admin-list").innerHTML = list.map(([pid, p]) => {
+    const total = getStockTotal(pid);
+    const chips = Object.entries(LOCALES).map(([lid, lnombre]) => `<span class="stock-chip">${lnombre}: ${getStockCantidad(lid, pid)}</span>`).join("");
+    const metaTxt = [p.categoria, p.medida, p.precio ? formatMoney(p.precio) : null].filter(Boolean).join(" · ");
+    return `<div class="product-card">
+      <div class="product-card-top">
+        <div><h4>${p.nombre} ${p.activo === false ? "<span class='pill pill-rechazada'>Inactivo</span>" : ""}</h4><div class="product-meta">${metaTxt}</div></div>
+        <div class="product-stock">${total}</div>
+      </div>
+      <div class="stock-breakdown">${chips}</div>
+      <div class="product-card-actions"><button class="btn btn-outline btn-small btn-editar-producto" data-id="${pid}">Editar</button></div>
+    </div>`;
+  }).join("") || `<div class="empty-state">Todavía no cargaste productos.</div>`;
+
+  document.querySelectorAll(".btn-editar-producto").forEach((btn) => btn.addEventListener("click", () => openProductoModal(btn.dataset.id)));
+}
+
+$("btn-nuevo-producto").addEventListener("click", () => openProductoModal(null));
+
+function openProductoModal(productId) {
+  const isEdit = !!productId;
+  $("producto-modal-title").textContent = isEdit ? "Editar producto" : "Nuevo producto";
+  $("producto-id").value = productId || "";
+  const p = isEdit ? cache.products[productId] : {};
+  $("producto-nombre").value = p.nombre || "";
+  $("producto-categoria").value = p.categoria || "";
+  $("producto-medida").value = p.medida || "";
+  $("producto-precio").value = p.precio || "";
+  $("producto-notas").value = p.notas || "";
+  $("producto-activo").checked = p.activo !== false;
+  $("producto-error").classList.add("hidden");
+
+  if (isEdit) {
+    $("producto-fotos-wrap").classList.remove("hidden");
+    $("producto-fotos-hint").classList.add("hidden");
+    loadProductoFotos(productId);
+  } else {
+    $("producto-fotos-wrap").classList.add("hidden");
+    $("producto-fotos-hint").classList.remove("hidden");
+    $("producto-fotos-grid").innerHTML = "";
+  }
+  $("modal-producto").classList.remove("hidden");
+}
+
+$("producto-submit-btn").addEventListener("click", async () => {
+  const id = $("producto-id").value;
+  const nombre = $("producto-nombre").value.trim();
+  const errorEl = $("producto-error");
+  errorEl.classList.add("hidden");
+  if (!nombre) { errorEl.textContent = "El nombre del producto es obligatorio."; errorEl.classList.remove("hidden"); return; }
+
+  const precioVal = parseFloat($("producto-precio").value);
+  const data = {
+    nombre, categoria: $("producto-categoria").value.trim() || null, medida: $("producto-medida").value.trim() || null,
+    precio: isNaN(precioVal) ? 0 : precioVal,
+    notas: $("producto-notas").value.trim() || null,
+    activo: $("producto-activo").checked
+  };
+
+  try {
+    if (id) {
+      await db.collection("products").doc(id).update(data);
+      $("modal-producto").classList.add("hidden");
+      showToast("Producto guardado.", "success");
+    } else {
+      const newDoc = await db.collection("products").add({ ...data, creadoPor: currentUser.nombre, fechaCreacion: firebase.firestore.FieldValue.serverTimestamp() });
+      const batch = db.batch();
+      Object.keys(LOCALES).forEach((localId) => batch.set(db.collection("stock").doc(stockKey(localId, newDoc.id)), { localId, productId: newDoc.id, cantidad: 0 }));
+      await batch.commit();
+      // Pasamos el modal a modo "editar" para poder agregar fotos sin tener que reabrirlo.
+      $("producto-id").value = newDoc.id;
+      $("producto-modal-title").textContent = "Editar producto";
+      $("producto-fotos-wrap").classList.remove("hidden");
+      $("producto-fotos-hint").classList.add("hidden");
+      loadProductoFotos(newDoc.id);
+      showToast("Producto creado. Ahora podés agregarle fotos.", "success");
+    }
+  } catch (err) {
+    console.error(err);
+    errorEl.textContent = "No se pudo guardar el producto. Intentá de nuevo.";
+    errorEl.classList.remove("hidden");
+  }
+});
+
+// ----- Fotos del producto (guardadas comprimidas en base64 en Firestore) -----
+
+function compressImageFile(file, maxWidth = 900, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => reject(new Error("No se pudo leer la imagen."));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadProductoFotos(productId) {
+  $("producto-fotos-grid").innerHTML = `<div class="foto-thumb foto-loading">Cargando...</div>`;
+  try {
+    const snap = await db.collection("products").doc(productId).collection("photos").orderBy("fecha", "desc").get();
+    if (snap.empty) {
+      $("producto-fotos-grid").innerHTML = `<div class="hint-text">Todavía no hay fotos cargadas.</div>`;
+      return;
+    }
+    $("producto-fotos-grid").innerHTML = snap.docs.map((doc) => `
+      <div class="foto-thumb">
+        <img src="${doc.data().data}" alt="Foto del producto">
+        <button type="button" class="foto-eliminar" data-photo-id="${doc.id}" data-product-id="${productId}">✕</button>
+      </div>`).join("");
+    document.querySelectorAll(".foto-eliminar").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        try {
+          await db.collection("products").doc(btn.dataset.productId).collection("photos").doc(btn.dataset.photoId).delete();
+          loadProductoFotos(btn.dataset.productId);
+        } catch (err) {
+          console.error(err);
+          showToast("No se pudo eliminar la foto.", "error");
+        }
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    $("producto-fotos-grid").innerHTML = `<div class="hint-text">No se pudieron cargar las fotos.</div>`;
+  }
+}
+
+$("producto-agregar-foto-btn").addEventListener("click", () => $("producto-foto-input").click());
+
+$("producto-foto-input").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  const productId = $("producto-id").value;
+  e.target.value = "";
+  if (!file || !productId) return;
+
+  showToast("Subiendo foto...", "");
+  try {
+    const dataUrl = await compressImageFile(file);
+    await db.collection("products").doc(productId).collection("photos").add({
+      data: dataUrl, creadoPor: currentUser.nombre, fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast("Foto agregada.", "success");
+    loadProductoFotos(productId);
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo subir la foto. Probá con una imagen más liviana.", "error");
+  }
+});
+
+// ==========================================================
+// DATOS DE PRUEBA
+// ==========================================================
+$("seed-data-btn").addEventListener("click", async () => {
+  if (!confirm("Esto va a crear productos y stock de ejemplo. ¿Continuar?")) return;
+  try { await seedTestData(); showToast("Datos de prueba cargados.", "success"); }
+  catch (err) { console.error(err); showToast("No se pudieron cargar los datos de prueba.", "error"); }
+});
+
+async function seedTestData() {
+  const productosDemo = [
+    { nombre: "Dakar 0,80 x 1,90", categoria: "Colchones", medida: "0,80 x 1,90", precio: 120000 },
+    { nombre: "Dakar 1,00 x 1,90", categoria: "Colchones", medida: "1,00 x 1,90", precio: 140000 },
+    { nombre: "Dakar 1,40 x 1,90", categoria: "Colchones", medida: "1,40 x 1,90", precio: 180000 },
+    { nombre: "Dakar 1,60 x 1,90", categoria: "Colchones", medida: "1,60 x 1,90", precio: 200000 },
+    { nombre: "Piero Outlet 0,80", categoria: "Colchones", medida: "0,80", precio: 90000 },
+    { nombre: "Piero Outlet 1,00", categoria: "Colchones", medida: "1,00", precio: 110000 },
+    { nombre: "Piero Outlet 1,40", categoria: "Colchones", medida: "1,40", precio: 150000 },
+    { nombre: "Base 0,80", categoria: "Sommiers", medida: "0,80", precio: 60000 },
+    { nombre: "Base 1,00", categoria: "Sommiers", medida: "1,00", precio: 75000 },
+    { nombre: "Base 1,40", categoria: "Sommiers", medida: "1,40", precio: 95000 },
+    { nombre: "Respaldo 0,80", categoria: "Respaldos", medida: "0,80", precio: 25000 },
+    { nombre: "Respaldo 1,00", categoria: "Respaldos", medida: "1,00", precio: 30000 },
+    { nombre: "Respaldo 1,40", categoria: "Respaldos", medida: "1,40", precio: 38000 },
+    { nombre: "Living", categoria: "Muebles", medida: null, precio: 250000 },
+    { nombre: "Mesa", categoria: "Muebles", medida: null, precio: 80000 },
+    { nombre: "Silla", categoria: "Muebles", medida: null, precio: 20000 }
+  ];
+  const batch = db.batch();
+  productosDemo.forEach((p) => {
+    const ref = db.collection("products").doc();
+    batch.set(ref, { ...p, notas: null, activo: true, fechaCreacion: firebase.firestore.FieldValue.serverTimestamp() });
+    Object.keys(LOCALES).forEach((localId) => {
+      const cantidad = Math.floor(Math.random() * 20);
+      batch.set(db.collection("stock").doc(stockKey(localId, ref.id)), { localId, productId: ref.id, cantidad });
+    });
+  });
+  await batch.commit();
+}
+</script>
+</body>
+</html>
